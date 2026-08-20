@@ -140,6 +140,7 @@ TON кошелек:
 
 Спасибо всем, кто поддерживает OLCWave ❤️
 
-# Copyright (C) 2026 invdevv - https://github.com/invdevv
-# This file is part of olcwave.
-# OLCWave is free software licensed under AGPL-3.0.
+
+<small>Copyright (C) 2026 invdevv - https://github.com/invdevv</small>
+<small>This file is part of olcwave.</small>
+<small>OLCWave is free software licensed under AGPL-3.0.</small>
