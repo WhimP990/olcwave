@@ -1,8 +1,11 @@
-from aiodocker.stream import Message
 import json
-import docker_client
+
+import yaml
 from aiodocker import DockerError
 from aiodocker.containers import DockerContainer
+
+import docker_client
+
 
 class OlcRTC:
     @staticmethod
@@ -98,6 +101,15 @@ class OlcRTC:
         env["UPSTREAM_SOCKS"] = upstream_proxy_addr
         env["UPSTREAM_USER"] = upstream_proxy_user
         env["UPSTREAM_PASS"] = upstream_proxy_pass
+
+        if "CONFIG" in env:
+            try:
+                cfg = yaml.safe_load(env["CONFIG"])
+                if isinstance(cfg, dict):
+                    cfg.pop("data", None)
+                    env["CONFIG"] = yaml.dump(cfg)
+            except yaml.YAMLError:
+                pass
 
         state = info["State"]["Status"]
 

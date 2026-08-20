@@ -355,9 +355,9 @@ cd frontend && npm ci && npm run build && cd ..
 
 cd subscriptionPage && npm ci && npm run build && cd ..
 
-cd backend/olcrtc && docker build . --tag olcrtc && cd ../..
+cd backend/olcrtc && docker build . --tag olcrtc --no-cache && cd ../..
 
-cd backend/xraycore && docker build . --tag xraycore && docker run -d --name olcwave-xraycore xraycore && docker stop olcwave-xraycore && cd ../..
+cd backend/xraycore && docker build . --tag xraycore --no-cache && docker run -d --name olcwave-xraycore xraycore && docker stop olcwave-xraycore && cd ../..
 
 docker compose up -d --build
 ```

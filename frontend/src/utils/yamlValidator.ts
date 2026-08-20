@@ -169,7 +169,7 @@ export function validateYaml(yaml: string): YamlValidationResult {
 
   // data — warning only
   if ('data' in root) {
-    addWarning(warnings, 'data', 'Optional field; backend will force to "data"')
+    addWarning(warnings, 'data', 'Optional field; backend will delete it')
   }
 
   return { valid: errors.length === 0, errors, warnings }

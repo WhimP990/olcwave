@@ -1,9 +1,10 @@
 import { useState, useMemo } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { containersApi } from '../api/containers'
 import type { Container } from '../types'
 import Button from '../components/ui/Button'
 import AutoRefreshSelect from '../components/ui/AutoRefreshSelect'
+import ConfirmDialog from '../components/ui/ConfirmDialog'
 import { Card, ErrorState, EmptyState, Skeleton } from '../components/ui/Misc'
 import ContainerRow from '../components/containers/ContainerRow'
 import CodeModal from '../components/containers/CodeModal'
@@ -40,13 +41,28 @@ export default function Containers() {
   const [expanded, setExpanded] = useState<Set<string>>(new Set())
   const [logsTarget, setLogsTarget] = useState<Container | null>(null)
   const [configTarget, setConfigTarget] = useState<Container | null>(null)
+  const [deleteTarget, setDeleteTarget] = useState<Container | null>(null)
   const [refreshMs, setRefreshMs] = useAutoRefresh('containers')
   const { toasts, dismiss, success, error } = useToasts()
+  const queryClient = useQueryClient()
 
   const { data: containers, isLoading, isError, error: queryError, refetch, isFetching } = useQuery({
     queryKey: ['containers-all'],
     queryFn: () => containersApi.getAll().then((r) => r.data),
     refetchInterval: refreshMs || false,
+  })
+
+  const deleteMutation = useMutation({
+    mutationFn: (name: string) => containersApi.remove(name),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['containers-all'] })
+      success(t('containerDeleted', { name: deleteTarget?.name ?? '' }))
+      setDeleteTarget(null)
+    },
+    onError: (err: { response?: { data?: { detail?: string } } }) => {
+      error(err?.response?.data?.detail || t('failedToDeleteContainer', { name: deleteTarget?.name ?? '' }))
+      setDeleteTarget(null)
+    },
   })
 
   const filtered = useMemo(() => {
@@ -175,6 +191,7 @@ export default function Containers() {
                           onToggle={() => toggleExpand(c.id)}
                           onLogs={setLogsTarget}
                           onConfig={setConfigTarget}
+                          onRequestDelete={setDeleteTarget}
                           onSuccess={success}
                           onError={error}
                           colSpan={COL_SPAN}
@@ -191,6 +208,14 @@ export default function Containers() {
 
       <LogsModal container={logsTarget} onClose={() => setLogsTarget(null)} />
       <ConfigModal container={configTarget} onClose={() => setConfigTarget(null)} />
+      <ConfirmDialog
+        open={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={() => deleteTarget && deleteMutation.mutate(deleteTarget.name)}
+        title={t('deleteContainer')}
+        message={t('deleteContainerConfirm', { name: deleteTarget?.name ?? '' })}
+        loading={deleteMutation.isPending}
+      />
       <ToastContainer toasts={toasts} onDismiss={dismiss} />
     </div>
   )

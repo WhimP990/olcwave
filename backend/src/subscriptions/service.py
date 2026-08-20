@@ -76,9 +76,8 @@ class Subscriptions:
     @staticmethod
     async def profile_to_config(profile: str):
         config = yaml.safe_load(profile)
-
-        config["crypto"]["key"] = secrets.token_hex(32)
-
+        config.pop("data", None)
+        config.setdefault("crypto", {})["key"] = secrets.token_hex(32)
         if (
             config["auth"]["provider"] in ["telemost", "wbstream"]
             and config["auth"].get("token", "") != ""
@@ -112,7 +111,6 @@ class Subscriptions:
                 room_url[3] = str(secrets.token_hex(16))
 
             config["room"]["id"] = "/".join(room_url)
-
         return yaml.dump(config)
 
     @staticmethod

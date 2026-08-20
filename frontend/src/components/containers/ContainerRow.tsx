@@ -11,6 +11,7 @@ import {
   DocumentTextIcon,
   CodeBracketIcon,
   ChevronRightIcon,
+  TrashIcon,
 } from '@heroicons/react/24/outline'
 
 type Action = 'run' | 'stop' | 'restart'
@@ -21,6 +22,7 @@ interface ContainerRowProps {
   onToggle: () => void
   onLogs: (c: Container) => void
   onConfig: (c: Container) => void
+  onRequestDelete: (c: Container) => void
   onError: (message: string) => void
   onSuccess: (message: string) => void
   /** Number of columns, so the expanded detail row can span the full table. */
@@ -33,6 +35,7 @@ export default function ContainerRow({
   onToggle,
   onLogs,
   onConfig,
+  onRequestDelete,
   onError,
   onSuccess,
   colSpan,
@@ -126,6 +129,14 @@ export default function ContainerRow({
             />
             <ActionButton icon={DocumentTextIcon} label={t('logs')} onClick={() => onLogs(container)} disabled={mutation.isPending} />
             <ActionButton icon={CodeBracketIcon} label={t('config')} onClick={() => onConfig(container)} disabled={mutation.isPending} />
+            <ActionButton
+              icon={TrashIcon}
+              label={t('delete')}
+              onClick={() => onRequestDelete(container)}
+              disabled={mutation.isPending}
+              variant="danger"
+              iconOnly
+            />
           </div>
         </td>
       </tr>
@@ -172,6 +183,7 @@ interface ActionButtonProps {
   loading?: boolean
   disabled?: boolean
   variant?: 'default' | 'success' | 'danger'
+  iconOnly?: boolean
 }
 
 const actionVariants = {
@@ -180,14 +192,15 @@ const actionVariants = {
   danger: 'text-danger hover:bg-danger/10',
 }
 
-function ActionButton({ icon: Icon, label, onClick, loading, disabled, variant = 'default' }: ActionButtonProps) {
+function ActionButton({ icon: Icon, label, onClick, loading, disabled, variant = 'default', iconOnly }: ActionButtonProps) {
   return (
     <button
       onClick={onClick}
       disabled={disabled || loading}
-      className={`inline-flex items-center gap-1.5 h-7 px-1.5 text-xs font-medium rounded-md
+      className={`inline-flex items-center gap-1.5 h-7 text-xs font-medium rounded-md
         transition-all duration-150 cursor-pointer active:scale-[0.98]
-        disabled:opacity-40 disabled:pointer-events-none ${actionVariants[variant]}`}
+        disabled:opacity-40 disabled:pointer-events-none ${actionVariants[variant]}
+        ${iconOnly ? 'w-7 px-0 justify-center' : 'px-1.5'}`}
       title={label}
     >
       {loading ? (
@@ -198,7 +211,7 @@ function ActionButton({ icon: Icon, label, onClick, loading, disabled, variant =
       ) : (
         <Icon className="w-3.5 h-3.5 shrink-0" />
       )}
-      <span className="hidden xl:inline">{label}</span>
+      {!iconOnly && <span className="hidden xl:inline">{label}</span>}
     </button>
   )
 }

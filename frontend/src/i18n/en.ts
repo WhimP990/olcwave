@@ -359,6 +359,10 @@ const translations = {
 
   containerActionSuccess: 'Container {name} \u2014 {action} succeeded',
   failedToActionContainer: 'Failed to {action} {name}',
+  deleteContainer: 'Delete Container',
+  deleteContainerConfirm: 'Delete container {name}? This action cannot be undone.',
+  containerDeleted: 'Container {name} deleted',
+  failedToDeleteContainer: 'Failed to delete container {name}',
 
   invalidYaml: 'Invalid YAML',
   yamlRootMustBeMapping: 'YAML root must be a mapping (object)',
@@ -373,7 +377,7 @@ const translations = {
   mustBeDuration: 'Must be a duration (e.g., "{example}")',
   mustBeNonNegative: 'Must be a non-negative number',
   willBeRemoved: 'Will be removed by backend',
-  optionalFieldData: 'Optional field; backend will force to "data"',
+  optionalFieldData: 'Optional field; backend will delete it',
 
   configIsEmpty: 'Config is empty',
   invalidJson: 'Invalid JSON \u2014 {msg}',

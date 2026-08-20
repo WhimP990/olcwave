@@ -9,11 +9,10 @@ ENV PATH="/go/bin:${PATH}"
 
 WORKDIR /build
 
-RUN git clone https://github.com/openlibrecommunity/olcrtc.git olcrtc
+RUN git clone --depth=1 https://github.com/openlibrecommunity/olcrtc.git olcrtc
 
 WORKDIR /build/olcrtc
 
-RUN git reset --hard 8da02ae
 RUN mage build
 
 
@@ -53,7 +52,10 @@ RUN chmod +x \
 
 RUN mkdir -p \
     /var/lib/olcwave \
-    /tmp/olcwave
+    /tmp/olcwave \
+    /tmp/olcwave/data
+
+COPY --from=builder /build/olcrtc/internal/names/data /tmp/olcwave/data
 
 ENV PROXY_BIND_ADDR=127.0.0.1
 ENV PROXY_PORT=1080

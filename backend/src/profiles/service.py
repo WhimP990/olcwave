@@ -13,14 +13,11 @@ class Profiles:
         profile_obj: dict = yaml.safe_load(config)  
 
         profile_obj['mode'] = "srv"
-        profile_obj['data'] = "data"
+        profile_obj.pop("data", None)
 
-        if profile_obj.get('socks', None):
-            profile_obj.pop('socks')
+        profile_obj.pop('socks', None)
         
-        if profile_obj.get('crypto', None) is None or profile_obj["crypto"].get('key', None) is None or profile_obj['crypto']["key"] != "":
-            profile_obj["crypto"] = {}
-            profile_obj["crypto"]["key"] = ""    
+        profile_obj.pop("crypto", None)   
 
         return yaml.safe_dump(profile_obj, sort_keys=False)
 
