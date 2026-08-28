@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from remnawave.models.users import GetAllUsersResponseDto, UserResponseDto
 from remnawave.models.users import GetUserByShortUuidResponseDto
 from remnawave.models.subscription import GetSubscriptionInfoResponseDto
@@ -9,6 +11,28 @@ from remnawave.models import (
 )
 
 from config import settings
+
+
+def make_uuid_optional(model) -> None:
+    field = model.model_fields.get("uuid")
+
+    if field is None:
+        return
+
+    field.annotation = UUID | None
+    field.default = None
+
+    model.model_rebuild(force=True)
+
+
+def patch_remnawave_users() -> None:
+    """Patch the Remnawave SDK models to make the `uuid` field optional in certain user-related response DTOs."""
+    make_uuid_optional(UserResponseDto)
+    make_uuid_optional(GetUserByShortUuidResponseDto)
+    GetAllUsersResponseDto.model_rebuild(force=True)
+
+
+patch_remnawave_users()
 
 
 _remnawave: RemnawaveSDK | None = None
