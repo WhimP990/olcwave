@@ -154,7 +154,7 @@ class Subscriptions:
 
                 if name.endswith(short_uuid):
                     servers.append(
-                        name.split("-")[1]
+                        name.split("-", 2)[1]
                     )
 
         return servers

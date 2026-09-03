@@ -18,7 +18,7 @@ class Containers:
         info = await cont.show()
 
         name = info["Name"].lstrip("/")
-        parts = name.split("-")
+        parts = name.split("-", 2)
 
         return len(parts) == 3 and parts[0] == "olcwave"
 
@@ -27,7 +27,7 @@ class Containers:
         info = await cont.show()
 
         name = info["Name"].lstrip("/")
-        parts = name.split("-")
+        parts = name.split("-", 2)
 
         if len(parts) != 3:
             return None
