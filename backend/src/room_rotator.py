@@ -401,6 +401,14 @@ class RoomRotator:
             return False
 
     @staticmethod
+    async def _container_running(name: str) -> bool:
+        try:
+            info = await (await OlcRTC.get(name)).show()
+            return (info.get("State") or {}).get("Running") is True
+        except Exception:
+            return False
+
+    @staticmethod
     async def _ensure_standby(
         profile, provider, tokens, tag, short_uuid, st: dict, current_room: str
     ) -> None:
@@ -410,15 +418,23 @@ class RoomRotator:
         flapping standby is left alone (it reconnects on its own)."""
         name = f"olcwave-{tag}-{short_uuid}"
         sb = st.get("standby")
+        dead_room = st.get("standby_room")
         if sb and await RoomRotator._container_exists(sb):
-            return
+            if await RoomRotator._container_running(sb):
+                return
+            # The container is there but its srv has exited - typically it gave up
+            # joining the room (media timeout) and olcrtc returned 0. A stopped
+            # standby is no failover target, and "exists" used to be taken for
+            # "warm", leaving the slot with nothing to hop to for the whole hold.
+            RoomRotator._log(f"{name}: standby {sb} exists but is not running - respawning")
+            await RoomRotator._drop_standby(st)
 
         group_key = await RoomRotator._current_key(name)
         if not group_key:
             return
         exclude = {current_room}
-        if st.get("standby_room"):
-            exclude.add(st["standby_room"])   # don't re-pick the standby room that just died
+        if dead_room:
+            exclude.add(dead_room)   # don't re-pick the standby room that just died
         if st.get("vacated"):
             # Never resurrect the room we just tore down: the client may still be
             # reconnecting to it and would re-glue to it instead of moving on.
